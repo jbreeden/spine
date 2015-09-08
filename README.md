@@ -6,6 +6,21 @@ Backbone &amp; jQuery debugging extension for Chrome DevTools.
 Spine provides event tracing and correlation functions for jQuery and Backbone. It can also help you find the view
 responsible for a particular DOM element.
 
+## Install from source
+
+Using Google Chrome:
+
+- Download the project archive and extract it somewhere.
+- Click on Tools -> Settings -> Extensions
+- Select "Enable developer mode" in the upper right of the window.
+- Click on "Load unpacked extension".
+- Select the extracted folder.
+- Enjoy!
+
+(Thanks to Manuel Dell'Elce, the author of [Backbone-Debugger](https://github.com/Maluen/Backbone-Debugger) & these installation instructions.)
+
+_Note: Spine will inject itself into every page until you disable the extension from the settings page._
+
 ### Get View from DOM Elements
 
 All DOM elements are monkey-patched with a `view` property, which will return the view object that rendered
