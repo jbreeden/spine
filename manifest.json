@@ -1,0 +1,18 @@
+{
+  "name": "Spine",
+  "description": "Instruments Backbone application. Exposes functionality on the global spine object.",
+  "version": "0.1",
+  "permissions": [
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "js": ["content_script.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": ["spine.js"],
+  "manifest_version": 2
+}
