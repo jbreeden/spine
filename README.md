@@ -6,6 +6,8 @@ Backbone &amp; jQuery debugging extension for Chrome DevTools.
 Spine provides event tracing and correlation functions for jQuery and Backbone. It can also help you find the view
 responsible for a particular DOM element.
 
+Works with globally defined Backbone & AMD modules defined with `define`.
+
 ## Install from source
 
 Using Google Chrome:
