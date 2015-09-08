@@ -26,9 +26,18 @@
   spine.onGlobalDefined('Backbone', function (Backbone) {
     if (spine.isBackbone(Backbone)) {
       console.log("Instrumenting global backbone", Backbone);
-      spine.instrumentBackbone(Backbone);
+      instrumentBackbone(Backbone);
       onBackboneFound(Backbone);
     }
+  });
+
+  spine.onGlobalDefined('jQuery', function ($) {
+    instrumentJQuery($);
+  });
+
+  spine.onGlobalDefined('sinon', function (sinon) {
+    console.log("Found Sinon. Adding wrapper functions to spine.");
+    addSinonWrappers();
   });
 
   spine.onGlobalDefined('define', function (define) {
@@ -156,52 +165,118 @@
   // jQuery
   // ------
 
-  spine.traceAjax =  function (/* event[, event...]*/) {
-    var events = []
-    if (arguments.length == 0) {
-      events = ['start', 'send', 'success', 'error', 'complete', 'stop'];
-    } else if (!(arguments[0] === false)) {
-      events = Array.prototype.slice.call(arguments);
-    }
+  // ### Trace Ajax
 
-    var eventMapping = {
-      start: 'ajaxStart',
-      send: 'ajaxSend',
-      success: 'ajaxSuccess',
-      error: 'ajaxError',
-      complete: 'ajaxComplete',
-      stop: 'ajaxStop'
+  (function () {
+    spine.traceAjax =  function (/* event[, event...]*/) {
+      var events = []
+      if (arguments.length == 0) {
+        events = ['start', 'send', 'success', 'error', 'complete', 'stop'];
+      } else if (!(arguments[0] === false)) {
+        events = Array.prototype.slice.call(arguments);
+      }
+
+      var eventMapping = {
+        start: 'ajaxStart',
+        send: 'ajaxSend',
+        success: 'ajaxSuccess',
+        error: 'ajaxError',
+        complete: 'ajaxComplete',
+        stop: 'ajaxStop'
+      };
+
+      Object.keys(eventMapping).forEach(function (shortName) {
+        var eventName = eventMapping[shortName];
+        var handler = getHandler(eventName);
+        if (events.indexOf(shortName) != -1) {
+          $(document).off(eventName, handler);
+          $(document).on(eventName, handler);
+        } else {
+          $(document).off(eventName, handler);
+        }
+      });
     };
 
-    Object.keys(eventMapping).forEach(function (shortName) {
-      var eventName = eventMapping[shortName];
-      var handler = spine.traceAjax.getHandler(eventName);
-      if (events.indexOf(shortName) != -1) {
-        $(document).off(eventName, handler);
-        $(document).on(eventName, handler);
-      } else {
-        $(document).off(eventName, handler);
+    var ajaxHandlers = {};
+    function getHandler(event) {
+      if (!ajaxHandlers[event]) {
+        ajaxHandlers[event] = function () {
+          var eventData = new AjaxEvent();
+          eventData.eventName = event;
+          eventData.handlerContext = this;
+          eventData.handlerArguments = Array.prototype.slice.call(arguments);
+          var url = null;
+          eventData.handlerArguments.forEach(function (arg) {
+            if (arg.url) url = arg.url;
+          });
+          eventData.log();
+        }
       }
-    });
-  };
+      return ajaxHandlers[event];
+    };
+  }());
 
-  spine.traceAjax.handlers = {};
-  spine.traceAjax.getHandler = function (event) {
-    if (!spine.traceAjax.handlers[event]) {
-      spine.traceAjax.handlers[event] = function () {
-        var eventData = new AjaxEvent();
-        eventData.eventName = event;
-        eventData.handlerContext = this;
-        eventData.handlerArguments = Array.prototype.slice.call(arguments);
-        var url = null;
-        eventData.handlerArguments.forEach(function (arg) {
-          if (arg.url) url = arg.url;
-        });
-        eventData.log();
-      }
+  function instrumentJQuery($) {
+    var ajax = $.ajax;
+    $.ajax = function () {
+      return ajax.apply($, arguments);
     }
-    return spine.traceAjax.handlers[event];
-  };
+    Object.keys(ajax).forEach(function (k) {
+      $.ajax[k] = ajax[k];
+    });
+  }
+
+  // Sinon
+  // -----
+
+  function addSinonWrappers() {
+    var fakeServer, fakeUrls = [];
+
+    spine.fakeAjax = function () {
+      sinon.FakeXMLHttpRequest.useFilters = true;
+      sinon.FakeXMLHttpRequest.addFilter(requestFilter);
+      fakeServer = sinon.fakeServer.create();
+      fakeServer.autoRespond = true;
+    };
+
+    spine.restoreAjax = function () {
+      fakeServer.restore();
+      fakeServer = null;
+      fakeUrls = [];
+    };
+
+    spine.server = {};
+
+    spine.onAjax = function () {
+      if (!fakeServer) {
+        throw "Cannot set ajax callbacks before calling `spine.fakeAjax()`"
+      }
+      if (!(arguments.length == 2 || arguments.length == 3)) {
+        throw "onAjax requires 2 or 3 arguments";
+      }
+
+      if (arguments.length == 2) {
+        url = arguments[0];
+      } else {
+        url = arguments[1];
+      }
+
+      fakeUrls.push(url);
+      fakeServer.respondWith.apply(fakeServer, arguments);
+    };
+
+    function requestFilter(method, url, async, uname, pword) {
+      for (var i = 0; i < fakeUrls.length; i++) {
+        if (fakeUrls[i].constructor == RegExp) {
+          if (url.match(fakeUrls[i])) return false;
+        } else {
+          if (url == fakeUrls[i]) return false;
+        }
+      }
+      // No match in fakeUrls, return true to send to actual server
+      return true;
+    }
+  }
 
   // Backbone
   // --------
@@ -589,7 +664,7 @@
   // Backbone Instrumentation
   // ------------------------
 
-  spine.instrumentBackbone = function (Backbone) {
+  function instrumentBackbone(Backbone) {
     if (!spine.isBackbone(Backbone)) {
       return;
     }
