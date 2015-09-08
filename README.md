@@ -75,3 +75,20 @@ For convenience, spine provides the `eventsOfType` function on actions. This fun
 and displays all events in the action that match.
 
 ![inspect actions](https://raw.github.com/jbreeden/spine/master/screenshots/inspect_actions.png)
+
+### Tracing on Page Load
+
+Having to call `spine.traceActions()` to start tracing means you can't debug your page until after it has finished
+loading. To work around this, you can add a query string to your url of the form `spine.SOME_METHOD`. Note that you do not need to place parenthesis after the method name.
+
+This will work with any method defined on spine. So, to trace actions on page load, you would use `http://myapp.com/path/to/page?spine.traceActions`.
+
+### Trace Ajax
+
+I did say this was for jQuery too, right? To trace ajax events, you can use `spine.traceActions()`, which includes
+all ajax events. Alternatively, you can use `spine.traceAjax()`. One advantage of this approach is that you get full
+stack traces for each event. This is true for all `traceSomething` functions besides `traceActions` (having to store
+the stacktrace until the action is done before printing it complicates things...)
+
+By default, all ajax events are traced (start, send, success, error, complete, stop). To trace a subset of these
+events, just supply the short name of the event to the trace function. Ex: `spine.traceAjax('send', 'complete')` will trace only send & complete events.
