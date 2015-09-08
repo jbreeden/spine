@@ -1,6 +1,6 @@
 {
   "name": "Spine",
-  "description": "Instruments Backbone application. Exposes functionality on the global spine object.",
+  "description": "Debugging utilities for Backbone applications.",
   "version": "0.1",
   "permissions": [
     "activeTab"
