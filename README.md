@@ -87,10 +87,22 @@ This will work with any method defined on spine. So, to trace actions on page lo
 
 ### Trace Ajax
 
-I did say this was for jQuery too, right? To trace ajax events, you can use `spine.traceActions()`, which includes
-all ajax events. Alternatively, you can use `spine.traceAjax()`. One advantage of this approach is that you get full
+To trace ajax events, you can use `spine.traceActions()`, which includes all ajax events.
+Alternatively, you can use `spine.traceAjax()`. One advantage of this approach is that you get full
 stack traces for each event. This is true for all `traceSomething` functions besides `traceActions` (having to store
 the stacktrace until the action is done before printing it complicates things...)
 
 By default, all ajax events are traced (start, send, success, error, complete, stop). To trace a subset of these
 events, just supply the short name of the event to the trace function. Ex: `spine.traceAjax('send', 'complete')` will trace only send & complete events.
+
+### Intercept Ajax
+
+Spine enables you to mock out responses to ajax requests on the fly. Just call `spine.onAjax` as in `spine.onAjax(/url.*pattern/, [200, {}, 'Success!'])`. Underneath, spine is using [sinon](http://sinonjs.org) to
+mock out XHR requests. The arguments to this function are passed directly to [sinon](http://sinonjs.org)'s `fakeServer.respondWith` function (check out [the docs](http://sinonjs.org/docs/#server)).
+
+Only the ajax requests for a URL that matches the pattern you pass in will be intercepted. The rest will go
+to the server as usual.
+
+To direct sll ajax requests back to the server when you're done, use `spine.restoreAjax()`.
+
+![intercept ajax](https://raw.github.com/jbreeden/spine/master/screenshots/intercept_ajax.png)
