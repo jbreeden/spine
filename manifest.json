@@ -13,6 +13,6 @@
       "all_frames": true
     }
   ],
-  "web_accessible_resources": ["spine.js"],
+  "web_accessible_resources": ["spine.js", "sinon.js"],
   "manifest_version": 2
 }

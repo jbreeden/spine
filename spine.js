@@ -25,19 +25,20 @@
 
   spine.onGlobalDefined('Backbone', function (Backbone) {
     if (spine.isBackbone(Backbone)) {
-      console.log("Instrumenting global backbone", Backbone);
+      console.log("SPINE: Instrumenting global backbone", Backbone);
       instrumentBackbone(Backbone);
       onBackboneFound(Backbone);
     }
   });
 
   spine.onGlobalDefined('jQuery', function ($) {
+    console.log("SPINE: Instrumenting global jQuery");
     instrumentJQuery($);
   });
 
   spine.onGlobalDefined('sinon', function (sinon) {
-    console.log("Found Sinon. Adding wrapper functions to spine.");
-    addSinonWrappers();
+    console.log("SPINE: Found Sinon. Adding wrapper functions to spine.");
+    addSinonWrappers(sinon);
   });
 
   spine.onGlobalDefined('define', function (define) {
@@ -93,6 +94,7 @@
   }
   onBackboneFound.callbacks = [];
 
+
   // Internal Types
   // --------------
 
@@ -105,7 +107,7 @@
       isView = true;
     }
     if (isView) {
-      console.groupCollapsed(this.eventName + ' (' + this.handlerContext.cid + ' ' + (this.handlerContext.el ? this.handlerContext.el.getAttribute('data-view') : '') + ')');
+      console.groupCollapsed(this.eventName + ' (cid:' + this.handlerContext.cid + ', data-view: ' + (this.handlerContext.el ? this.handlerContext.el.getAttribute('data-view') : '') + ')');
     } else {
       console.groupCollapsed(this.eventName);
     }
@@ -205,9 +207,8 @@
           eventData.eventName = event;
           eventData.handlerContext = this;
           eventData.handlerArguments = Array.prototype.slice.call(arguments);
-          var url = null;
           eventData.handlerArguments.forEach(function (arg) {
-            if (arg.url) url = arg.url;
+            if (arg.url) eventData.url = arg.url;
           });
           eventData.log();
         }
@@ -229,19 +230,22 @@
   // Sinon
   // -----
 
-  function addSinonWrappers() {
+  function addSinonWrappers(sinon) {
     var fakeServer, fakeUrls = [];
 
-    spine.fakeAjax = function () {
-      sinon.FakeXMLHttpRequest.useFilters = true;
-      sinon.FakeXMLHttpRequest.addFilter(requestFilter);
-      fakeServer = sinon.fakeServer.create();
-      fakeServer.autoRespond = true;
-    };
+    sinon.FakeXMLHttpRequest.useFilters = true;
+    sinon.FakeXMLHttpRequest.addFilter(requestFilter);
+    fakeServer = sinon.fakeServer.create();
+    fakeServer.autoRespond = true;
 
     spine.restoreAjax = function () {
+      // Restore ajax by restoring the fake server.
+      // However, recreate the fake server immediately in case onAjax is called again.
+      // The empty "fakeUrls" list will ensure requestFilter instructs the
+      // fake server to send all URLs to the server in the meantime.
       fakeServer.restore();
-      fakeServer = null;
+      fakeServer = sinon.fakeServer.create();
+      fakeServer.autoRespond = true;
       fakeUrls = [];
     };
 
