@@ -1,5 +1,6 @@
-Spine.View = Backbone.View.extend({
-  className: 'spine-view',
+Spine = window.Spine || {};
+Spine.EnableView = Backbone.View.extend({
+  className: 'spine-enable-view',
   events: {
     'change .enabled': 'setEnabled'
   },
@@ -9,7 +10,6 @@ Spine.View = Backbone.View.extend({
   render: function () {
     this.$el.append(_.template(this.template));
     this.$('.enabled').prop('checked', this.model.get('enabled'));
-    this.delegateEvents();
     return this.el;
   },
   template: '<label><input class="enabled" type="checkbox"></intput>Enabled</label>'

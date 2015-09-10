@@ -9,5 +9,7 @@ chrome.storage.local.get(function (model) {
     var scriptParent = (document.head||document.documentElement);
     scriptParent.appendChild(sinonScript);
     scriptParent.appendChild(spineScript);
+
+    // Todo: Set traces based on model
   }
 });
