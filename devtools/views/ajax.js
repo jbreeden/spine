@@ -23,7 +23,7 @@ Spine.AjaxView = Backbone.View.extend({
     }.bind(this));
     return this.el;
   },
-  template: '<b>Trace Ajax:</b><br/>\
+  template: '<b>Trace Ajax</b><br/>\
   <label><input class="start" type="checkbox"></input>Start</label><br/>\
   <label><input class="send" type="checkbox"></input>Send</label><br/>\
   <label><input class="success" type="checkbox"></input>Success</label><br/>\

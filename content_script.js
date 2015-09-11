@@ -10,6 +10,6 @@ chrome.storage.local.get(function (model) {
     scriptParent.appendChild(sinonScript);
     scriptParent.appendChild(spineScript);
 
-    // Todo: Set traces based on model
+    chrome.runtime.sendMessage('spineLoaded');
   }
 });
