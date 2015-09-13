@@ -24,7 +24,7 @@ Using Google Chrome:
 
 (Thanks to Manuel Dell'Elce, the author of [Backbone-Debugger](https://github.com/Maluen/Backbone-Debugger) & these installation instructions.)
 
-### GUI
+## GUI
 
 Use the GUI to...
 
@@ -40,7 +40,7 @@ Use the GUI to...
 
 ![view objects](https://raw.github.com/jbreeden/spine/master/screenshots/gui_fake_server.png)
 
-### CLI
+## CLI
 
 Or use the console to...
 
