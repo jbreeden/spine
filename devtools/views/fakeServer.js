@@ -6,6 +6,8 @@ Spine.FakeServerView = Backbone.View.extend({
     'change .record': 'setAjaxRecording'
   },
   initialize: function () {
+    this.initializeDOM();
+
     this.model.on('change:enabled', function (model, enabled) {
       if (enabled) {
         this.enable();
@@ -16,18 +18,15 @@ Spine.FakeServerView = Backbone.View.extend({
     }.bind(this));
 
     this.model.on('page:load', this.restoreFakeServer, this);
-    this.model.routes.on('change', this.setFakeServer, this);
+    this.model.routes.on('change:applied', this.setFakeServer, this);
 
     this.children = {};
     this.children.routes = [];
 
-    this.listenTo(this.model.routes, 'update', function () {
-      this.render();
-    }.bind(this));
+    this.model.routes.each(this.addRoute, this);
+    this.listenTo(this.model.routes, 'add', this.addRoute.bind(this));
 
     this.listenTo(Backbone, 'ajax:response', this.addAjaxRecording.bind(this));
-
-    this.$el.html(this.template);
   },
   toggleFakeServer: function () {
     if (!this.applied) {
@@ -62,27 +61,15 @@ Spine.FakeServerView = Backbone.View.extend({
     this.$('button').removeAttr('disabled');
     this.$el.removeClass('disabled');
   },
-  render: function () {
+  initializeDOM: function () {
+    this.$el.html(this.template);
     if (!this.model.get('enabled')) this.disable();
-
-    _.each(this.children.routes, function (routeView) {
-      routeView.remove();
-    }, this);
-
-    this.children.routes = [];
-
-    this.model.routes.each(function (route) {
-      var routeView = new Spine.FakeServerRouteView({ model: route });
-      this.children.routes.push(routeView);
-      this.$('.routes').append(routeView.render().el);
-    }, this);
-
-    if (this.model.get('enabled')) {
-      this.enable();
-    } else {
-      this.disable();
-    }
-
+  },
+  addRoute: function (route) {
+    var routeView = new Spine.FakeServerRouteView({ model: route });
+    this.$('.routes').append(routeView.render().el);
+  },
+  render: function () {
     return this;
   },
   template: '\

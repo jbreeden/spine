@@ -13,6 +13,12 @@ Spine.FakeServerRouteView = Backbone.View.extend({
     this.errors = new Backbone.Model();
     this.listenTo(this.errors, 'change', this.setValidationErrors.bind(this));
 
+    this.listenTo(this.model, 'remove', function (model, collection) {
+      if (collection == this.model.collection) {
+        this.remove();
+      }
+    }.bind(this));
+
     _.each(['textarea', 'input'], function (tag) {
       this.$el.on('change', tag, function () {
         if (this.model.get('applied')) {
