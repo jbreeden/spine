@@ -3,10 +3,13 @@ Backbone &amp; jQuery debugging extension for Chrome DevTools.
 
 ## Features
 
-Spine provides event tracing and correlation functions for jQuery and Backbone. It can also help you find the view
-responsible for a particular DOM element.
+Spine provides debugging facilities for jQuery and Backbone applications, including...
 
-Works with globally defined Backbone & AMD modules defined with `define`.
+- Detailed AJAX & Backbone event tracing
+- Event correlation & filtering
+- A fake server for mocking AJAX request responses
+
+Spine works jQuery & Backbone whether defined globally or required by an AMD loader.
 
 ## Install from source
 
@@ -21,15 +24,33 @@ Using Google Chrome:
 
 (Thanks to Manuel Dell'Elce, the author of [Backbone-Debugger](https://github.com/Maluen/Backbone-Debugger) & these installation instructions.)
 
-_Note: Spine will inject itself into every page until you disable the extension from the settings page._
+## GUI
 
-### Get View from DOM Elements
+Use the GUI to...
+
+#### Enable or disable the extension
+
+![view objects](https://raw.github.com/jbreeden/spine/master/screenshots/gui_main_settings.png)
+
+#### Set traces for AJAX & Backbone events
+
+![view objects](https://raw.github.com/jbreeden/spine/master/screenshots/gui_event_tracing.png)
+
+#### Mock out AJAX responses
+
+![view objects](https://raw.github.com/jbreeden/spine/master/screenshots/gui_fake_server.png)
+
+## CLI
+
+Or use the console to...
+
+#### Get View from DOM Elements
 
 All DOM elements are monkey-patched with a `view` property, which will return the view object that rendered
 the element (or its parent, or grandparent, etc). That means you can just select the element in the "Elements" tab,
 and run $0.view in the console.
 
-### Inspect Objects
+#### Inspect Objects
 
 Spine is able to detect objects created from backbone classes. Use these properties to inspect all of the views, models, collections, and routers of your application.
 
@@ -41,20 +62,20 @@ Spine is able to detect objects created from backbone classes. Use these propert
 
 ![view objects](https://raw.github.com/jbreeden/spine/master/screenshots/view_objects.png)
 
-### List Views
+#### List Views
 
 While `spine.views` will return an array of all views, `spine.listViews()` will pretty-print them in the console for faster, more useful inspection.
 
 ![list views](https://raw.github.com/jbreeden/spine/master/screenshots/list_views.png)
 
-### Trace Events
+#### Trace Events
 
 Use `spine.traceEvents()` to have all Backbone events from all objects logged. If you're only interested in events
 from certain types of objects, just pass in a collection. Ex: `spine.traceEvents(spine.domViews)`
 
 ![trace events](https://raw.github.com/jbreeden/spine/master/screenshots/trace_events.png)
 
-### Correlate Events
+#### Trace Actions
 
 A typical Backbone app will trigger tons of events. Making sense of this information can be tricky. To help, spine
 provides some basic event correlation in the form of `spine.traceActions()`. This function will group consecutive
@@ -77,13 +98,6 @@ For convenience, spine provides the `eventsOfType` function on actions. This fun
 and displays all events in the action that match.
 
 ![inspect actions](https://raw.github.com/jbreeden/spine/master/screenshots/inspect_actions.png)
-
-### Tracing on Page Load
-
-Having to call `spine.traceActions()` to start tracing means you can't debug your page until after it has finished
-loading. To work around this, you can add a query string to your url of the form `spine.SOME_METHOD`. Note that you do not need to place parenthesis after the method name.
-
-This will work with any method defined on spine. So, to trace actions on page load, you would use `http://myapp.com/path/to/page?spine.traceActions`.
 
 ### Trace Ajax
 
