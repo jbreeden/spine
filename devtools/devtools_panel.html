@@ -1,16 +1,230 @@
 <html>
 <head>
   <style>
+    /*
+     * Window/Body Settings
+     */
+
+    html {
+      height: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      height: 100%;
+      background-color: whitesmoke;
+      margin: 0;
+      padding; 0;
+    }
+
+    /*
+     * Flexbox Styles
+     * --------------
+     */
+
+    .column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .inline-column {
+      display: inline-flex;
+      flex-direction: column;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .inline-row {
+      display: inline-flex;
+      flex-direction: row;
+    }
+
+    .align-stretch {
+      align-items: stretch;
+    }
+
+    .align-start {
+      align-items: flex-start;
+    }
+
+    .align-end {
+      align-items: flex-end;
+    }
+
+    .wrap {
+      flex-wrap: wrap;
+    }
+
+    .flex {
+      flex-grow: 1;
+      flex-shrink: 1;
+    }
+
+    .grow {
+      flex-grow: 1;
+    }
+
+    .shrink {
+      flex-shrink: 1;
+    }
+
+    .no-flex {
+      flex-grow: 0;
+      flex-shrink: 0;
+    }
+
+    .no-grow {
+      flex-grow: 0;
+    }
+
+    .no-shrink {
+      flex-shrink: 0;
+    }
+
+    .inline {
+      display: inline-block;
+    }
+
+    /*
+     * Page Specific
+     * -------------
+     */
+
+    /* Global */
+
+    .disabled, .disabled * {
+      color: grey;
+    }
+
+    textarea, input {
+      font-family: monospace;
+      font-size: medium;
+    }
+
+    .toolbar {
+      background-color: whitesmoke;
+      border-style: solid;
+      border-width: 1px;
+      border-color: rgba(0, 0, 0, 0.2);
+      margin: 5px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+
+    .toolbar h1 {
+      font-weight: bold;
+      font-size: medium;
+      margin: 5px 0 5px 0;
+    }
+
+    .explanation {
+      font-style: italic;
+      color: rgba(0, 0, 0, 0.6);
+      margin: 4px;
+    }
+
+    /* DevtoolsLayout View */
+
+    .spine-devtools-layout-view,
+    .spine-devtools-layout-view > .row {
+      height: 100%;
+    }
+
+    .spine-devtools-layout-view .sidebar {
+      width: 150px;
+      border-right-style: solid;
+      border-right-width: 1px;
+      border-right-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .spine-devtools-layout-view .foreground {
+      background-color: whitesmoke;
+    }
+
+    .spine-devtools-layout-view  div.content {
+      overflow-y: scroll;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .spine-devtools-layout-view .sidebar .nav {
+      padding: 10px;
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+      border-bottom-color: rgba(0, 0, 0, 0.2);
+      border-top-style: solid;
+      border-top-width: 1px;
+      border-top-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .spine-devtools-layout-view .sidebar .nav:hover,
+    .spine-devtools-layout-view .sidebar .nav.active-panel {
+      background-color: lightcyan;
+    }
+
+    .devtools-layout-content-panel {
+      height: 100%;
+    }
+
+    /* Fake Server View */
+
+    .spine-fake-server-route-view {
+      margin: 10px;
+      padding: 5px;
+      background-color: whitesmoke;
+      border-style: solid;
+      border-width: 1px;
+      border-radius: 5px;
+      border-color: grey;
+    }
+
+    .spine-fake-server-route-view button,
+    .spine-fake-server-route-view input,
+    .spine-fake-server-route-view textarea {
+      margin: 0 5px 5px 0;
+    }
+
+    .spine-fake-server-route-view textarea {
+      min-height: 100px;
+    }
+
+    .spine-fake-server-route-view.applied-route {
+      box-shadow: 2px 0px 4px  lightgreen,
+                  -2px 0px 4px  lightgreen,
+                  0px 2px 4px  lightgreen,
+                  0px -2px 4px  lightgreen
+    }
+
+    .spine-fake-server-route-view.applied-route.tainted-route {
+      box-shadow: 2px 0px 4px  red,
+                  -2px 0px 4px  red,
+                  0px 2px 4px  red,
+                  0px -2px 4px  red
+    }
+
+    .spine-fake-server-route-view .error {
+      color: red;
+    }
+
   </style>
 </head>
 <body>
-  <div id="content"></div>
   <script src="jquery.js" type="text/javascript"></script>
   <script src="underscore.js" type="text/javascript"></script>
   <script src="backbone.js" type="text/javascript"></script>
   <script src="models/spine.js" type="text/javascript"></script>
+  <script src="models/fakeServer.js" type="text/javascript"></script>
+  <script src="models/fakeServerRoute.js" type="text/javascript"></script>
+  <script src="views/devtoolsLayout.js" type="text/javascript"></script>
   <script src="views/spine.js" type="text/javascript"></script>
+  <script src="views/actions.js" type="text/javascript"></script>
   <script src="views/ajax.js" type="text/javascript"></script>
+  <script src="views/backbone.js" type="text/javascript"></script>
+  <script src="views/fakeServerRoute.js" type="text/javascript"></script>
+  <script src="views/fakeServer.js" type="text/javascript"></script>
   <script src="devtools_panel.js" type="text/javascript"></script>
 </body>
 </html>

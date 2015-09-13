@@ -1,71 +1,5 @@
 (function () {
-  window.spine = {};
-
-  // Instrument the Global Object
-  // ----------------------------
-
-  spine.onGlobalDefined = function (prop, callback) {
-    var oldValue = undefined;
-    if (window[prop]) {
-      callback(window[prop]);
-      return;
-    }
-
-    Object.defineProperty(window, prop, {
-      get: function () {
-        return window['__' + prop + '__'];
-      },
-      set: function (newValue) {
-        var decorated = callback(newValue) || newValue;
-        window['__' + prop + '__'] = decorated;
-      },
-      configurable: true
-    });
-  };
-
-  spine.onGlobalDefined('Backbone', function (Backbone) {
-    if (spine.isBackbone(Backbone)) {
-      console.log("SPINE: Instrumenting global backbone", Backbone);
-      instrumentBackbone(Backbone);
-      onBackboneFound(Backbone);
-    }
-  });
-
-  spine.onGlobalDefined('jQuery', function ($) {
-    console.log("SPINE: Instrumenting global jQuery");
-    instrumentJQuery($);
-  });
-
-  spine.onGlobalDefined('sinon', function (sinon) {
-    console.log("SPINE: Found Sinon. Adding wrapper functions to spine.");
-    addSinonWrappers(sinon);
-  });
-
-  spine.onGlobalDefined('define', function (define) {
-    if (spine.onGlobalDefined.settingDefine) return;
-    spine.onGlobalDefined.settingDefine = true;
-    var wrapper = function () {
-      var args = Array.prototype.slice.call(arguments);
-      var result = define.apply(this, args);
-      if (spine.isBackbone(result)) {
-        console.log("Instrumenting defined Backbone");
-        instrumentBackbone(result);
-        onBackboneFound(result);
-      }
-      return result;
-    }
-
-    // Make sure our wrapper really looks like the real thing.
-    // (If the page manages to define the `define` function before us,
-    // and we leave out this step, requirejs will fail to work.)
-    Object.keys(define).forEach(function (key) {
-      wrapper[key] = define[key];
-    });
-
-    window.define = wrapper;
-    spine.onGlobalDefined.settingDefine = false;
-  });
-
+  window.spine = window.spine || {};
   // Internals
   // ---------
 
@@ -75,10 +9,12 @@
   var privateEvents = [
     'debug:discover',
     'debug:report',
-    'debug:new'
+    'debug:new',
+    'debug:render'
   ];
 
   function isPrivateEvent(eventName) {
+    if (spine.verbose) return false;
     for (var i = 0; i < privateEvents.length; i++) {
       if (eventName.indexOf(privateEvents[i]) == 0) {
         return true;
@@ -93,7 +29,6 @@
     });
   }
   onBackboneFound.callbacks = [];
-
 
   // Internal Types
   // --------------
@@ -126,8 +61,19 @@
 
   function AjaxEvent() {};
   AjaxEvent.prototype.log = function (stack) {
-    console.groupCollapsed("%s%s%s", this.eventName, Array(15 - this.eventName.length + 1).join(' '), this.url);
-    console.log(this);
+
+    this.jqxhr = this.handlerArguments[1];
+    this.settings = this.handlerArguments[2];
+
+    if (this.jqxhr && this.settings) {
+      console.groupCollapsed("%s%s%s %s", this.eventName, Array(15 - this.eventName.length + 1).join(' '), this.settings.type, this.settings.url);
+      console.log("jQXHR: ", this.jqxhr);
+      console.log("Ajax Settings: ", this.settings);
+    } else {
+      console.log(this);
+      console.groupCollapsed(this.eventName);
+    }
+
     if (stack) console.log(stack);
     else console.trace();
     console.groupEnd();
@@ -162,6 +108,70 @@
     if (event.data.cmd == 'eval') {
       eval(event.data.script);
     }
+  });
+
+  // Instrument the Global Object
+  // ----------------------------
+
+  spine.onGlobalDefined = function (prop, callback) {
+    var oldValue = undefined;
+    if (window[prop]) {
+      callback(window[prop]);
+      return;
+    }
+
+    Object.defineProperty(window, prop, {
+      get: function () {
+        return window['__' + prop + '__'];
+      },
+      set: function (newValue) {
+        var decorated = callback(newValue) || newValue;
+        window['__' + prop + '__'] = decorated;
+      },
+      configurable: true
+    });
+  };
+
+  spine.onGlobalDefined('Backbone', function (Backbone) {
+    if (isBackbone(Backbone)) {
+      console.log("SPINE: Instrumenting global backbone", Backbone);
+      instrumentBackbone(Backbone);
+      onBackboneFound(Backbone);
+    }
+  });
+
+  spine.onGlobalDefined('jQuery', function ($) {
+    console.log("SPINE: Instrumenting global jQuery");
+  });
+
+  spine.onGlobalDefined('sinon', function (sinon) {
+    console.log("SPINE: Found Sinon. Adding wrapper functions to spine.");
+    addSinonWrappers(sinon);
+  });
+
+  spine.onGlobalDefined('define', function (define) {
+    if (spine.onGlobalDefined.settingDefine) return;
+    spine.onGlobalDefined.settingDefine = true;
+    var wrapper = function () {
+      var args = Array.prototype.slice.call(arguments);
+      var result = define.apply(this, args);
+      if (isBackbone(result)) {
+        console.log("Instrumenting defined Backbone");
+        instrumentBackbone(result);
+        onBackboneFound(result);
+      }
+      return result;
+    }
+
+    // Make sure our wrapper really looks like the real thing.
+    // (If the page manages to define the `define` function before us,
+    // and we leave out this step, requirejs will fail to work.)
+    Object.keys(define).forEach(function (key) {
+      wrapper[key] = define[key];
+    });
+
+    window.define = wrapper;
+    spine.onGlobalDefined.settingDefine = false;
   });
 
   // jQuery
@@ -217,26 +227,48 @@
     };
   }());
 
-  function instrumentJQuery($) {
-    var ajax = $.ajax;
-    $.ajax = function () {
-      return ajax.apply($, arguments);
+  // ### Post Ajax Reponses on Window. (Added for the GUI client, not CLI)
+
+  (function () {
+    spine.postAjaxResponses = function () {
+      if (arguments.length == 0 || arguments[0]) {
+        $(document).on('ajaxComplete', postAjaxResponse);
+      }
+      else {
+        $(document).off('ajaxComplete', postAjaxResponse);
+      }
+    };
+
+    function postAjaxResponse(event, jqxhr, settings) {
+      var response = {};
+      response.url = settings.url;
+      response.method = settings.type;
+      response.status = jqxhr.status;
+
+      response.headers = {};
+      jqxhr.getAllResponseHeaders().split("\n").forEach(function (h) {
+        var key = h.slice(0, h.indexOf(':'));
+        var value = jqxhr.getResponseHeader(key);
+        if (value !== null) response.headers[key] = value;
+      });
+
+      if (jqxhr.getResponseHeader('Content-Type').match(/json/i)) {
+          response.content = JSON.stringify(JSON.parse(jqxhr.responseText), null, '  ');
+      } else {
+        response.content = jqxhr.responseText;
+      }
+
+
+      window.postMessage("spine:ajax:response " + JSON.stringify(response), '*');
     }
-    Object.keys(ajax).forEach(function (k) {
-      $.ajax[k] = ajax[k];
-    });
-  }
+  }());
 
   // Sinon
   // -----
 
   function addSinonWrappers(sinon) {
     var fakeServer, fakeUrls = [];
-
-    sinon.FakeXMLHttpRequest.useFilters = true;
-    sinon.FakeXMLHttpRequest.addFilter(requestFilter);
-    fakeServer = sinon.fakeServer.create();
-    fakeServer.autoRespond = true;
+    setupFakeServer();
 
     spine.restoreAjax = function () {
       // Restore ajax by restoring the fake server.
@@ -244,17 +276,14 @@
       // The empty "fakeUrls" list will ensure requestFilter instructs the
       // fake server to send all URLs to the server in the meantime.
       fakeServer.restore();
-      fakeServer = sinon.fakeServer.create();
-      fakeServer.autoRespond = true;
-      fakeUrls = [];
+      setupFakeServer();
     };
 
     spine.server = {};
 
     spine.onAjax = function () {
-      if (!fakeServer) {
-        throw "Cannot set ajax callbacks before calling `spine.fakeAjax()`"
-      }
+      var url, method;
+
       if (!(arguments.length == 2 || arguments.length == 3)) {
         throw "onAjax requires 2 or 3 arguments";
       }
@@ -265,27 +294,43 @@
         url = arguments[1];
       }
 
-      fakeUrls.push(url);
+      if (arguments.length == 3) {
+        method = arguments[0];
+      }
+
+      fakeUrls.push({url: url, method: method});
       fakeServer.respondWith.apply(fakeServer, arguments);
     };
 
+    function setupFakeServer() {
+      fakeUrls = [];
+      sinon.FakeXMLHttpRequest.useFilters = true;
+      sinon.FakeXMLHttpRequest.addFilter(requestFilter);
+      fakeServer = sinon.fakeServer.create();
+      fakeServer.autoRespond = true;
+    }
+
     function requestFilter(method, url, async, uname, pword) {
+      var SEND_TO_SERVER = true;
+      var INTERCEPT_REQUEST = false;
+
       for (var i = 0; i < fakeUrls.length; i++) {
-        if (fakeUrls[i].constructor == RegExp) {
-          if (url.match(fakeUrls[i])) return false;
+        if (fakeUrls[i].method.toLowerCase() != method.toLowerCase()) continue;
+        if (fakeUrls[i].url.constructor == RegExp) {
+          if (url.match(fakeUrls[i].url)) return INTERCEPT_REQUEST;
         } else {
-          if (url == fakeUrls[i]) return false;
+          if (url == fakeUrls[i].url) return INTERCEPT_REQUEST;
         }
       }
       // No match in fakeUrls, return true to send to actual server
-      return true;
+      return SEND_TO_SERVER;
     }
   }
 
   // Backbone
   // --------
 
-  spine.isBackbone = function (backboneCandidate) {
+  function isBackbone(backboneCandidate) {
     if (backboneCandidate
         && backboneCandidate.View
         && backboneCandidate.Model
@@ -409,8 +454,11 @@
       item.on('all', eventTracer);
     };
 
-    spine.traceEvents = function (eventEmitters) {
-      var allDiscoverableEmitters = spine.discovery.allDiscoverableObjects();
+    // arguments => 'models', 'collections', 'views', 'routers' /* Or any subset as positional arguments*/
+    spine.traceEvents = function () {
+      var eventEmitters,
+          types = Array.prototype.slice.call(arguments),
+          allDiscoverableEmitters = spine.discovery.allDiscoverableObjects();
 
       // Each new call resets the value, so remove existing listeners
       allDiscoverableEmitters.forEach(function (emitter) {
@@ -432,8 +480,16 @@
             bb.on(e, newItemBinder);
           });
         });
+      } else if (!arguments[0]) {
+        return;
       } else {
-        if (!eventEmitters) return;
+        eventEmitters = [];
+        types.forEach(function (type) {
+          eventEmitters = eventEmitters.concat(spine[type]);
+          spine.Backbones.forEach(function (bb) {
+            bb.on('debug:new:' + type.slice(0, type.length - 1), newItemBinder);
+          });
+        });
       }
 
       eventEmitters.forEach(function (emitter) {
@@ -453,7 +509,7 @@
       machine.notifyNewBackbone(bb);
     });
 
-    // Pass in a number for `enable` so specify the tolerance between actions
+    // Pass in a number for `enable` to specify the tolerance between actions
     // in milliseconds.
     spine.traceActions = function (enable) {
       if (firstStart) {
@@ -539,17 +595,19 @@
       // STATE: Active
       active: new State({
         enter: function () {
+          this.startTime = (new Date()).toISOString();
           this.activitySinceLastTick = false;
           this.firstTickSinceEnter = true;
           this.events = [];
         },
         exit: function () {
           if (this.events.length > 0) {
+            this.endTime = (new Date()).toISOString();
             spine.actions = spine.actions || [];
             var action = new Action();
             spine.actions[action.index] = action;
 
-            console.groupCollapsed("spine.actions[" + action.index + ']');
+            console.groupCollapsed("spine.actions[" + action.index + '] (start: ' + this.startTime + ', end: ' + this.endTime + ')');
             this.events.forEach(function (event) {
               action.events.push(event);
               if (event.data.constructor == AjaxEvent || event.data.constructor == BackboneEvent) {
@@ -661,15 +719,11 @@
     };
   }());
 
-  // Set to "true" to have all `render` calls emit begin/end events (the default),
-  // or false to disable this feature
-  spine.triggerRenderEvents = true;
-
   // Backbone Instrumentation
   // ------------------------
 
   function instrumentBackbone(Backbone) {
-    if (!spine.isBackbone(Backbone)) {
+    if (!isBackbone(Backbone)) {
       return;
     }
     spine.Backbones.push(Backbone);
@@ -681,13 +735,9 @@
       var render = viewClass.prototype.render;
       viewClass.prototype.render = function () {
         var args = Array.prototype.slice.call(arguments);
-        if (spine.triggerRenderEvents) {
-          this.trigger('debug:render:begin', this);
-        }
+        this.trigger('debug:render:begin', this);
         var result = render.apply(this, args);
-        if (spine.triggerRenderEvents) {
-          this.trigger('debug:render:end', this);
-        }
+        this.trigger('debug:render:end', this);
         this.el._debug_view = this;
         return result;
       }
@@ -803,4 +853,6 @@
       });
     }
   });
+
+  if (spine.init) onBackboneFound.callbacks.push(function () { spine.init(); });
 }());

@@ -1,1 +1,1 @@
-chrome.devtools.panels.create("Spine", "", "devtools/devtools_panel.html");
+chrome.devtools.panels.create("Spine", "", "devtools/devtools_panel.html")
