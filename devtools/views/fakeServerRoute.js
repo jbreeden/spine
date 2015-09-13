@@ -16,6 +16,7 @@ Spine.FakeServerRouteView = Backbone.View.extend({
     this.listenTo(this.model, 'remove', function (model, collection) {
       if (collection == this.model.collection) {
         this.remove();
+        Backbone.trigger('setFakeServer');
       }
     }.bind(this));
 
