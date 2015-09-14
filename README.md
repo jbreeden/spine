@@ -1,4 +1,3 @@
-# spine
 Backbone &amp; jQuery debugging extension for Chrome DevTools.
 
 ## Features
@@ -8,6 +7,7 @@ Spine provides debugging facilities for jQuery and Backbone applications, includ
 - Detailed AJAX & Backbone event tracing
 - Event correlation & filtering
 - A fake server for mocking AJAX request responses
+- Convenient storage for user-defined JavaScript snippets that you can execute on any page.
 
 Spine works jQuery & Backbone whether defined globally or required by an AMD loader.
 
@@ -40,9 +40,13 @@ Use the GUI to...
 
 ![view objects](https://raw.github.com/jbreeden/spine/master/screenshots/gui_fake_server.png)
 
+#### Save User Scripts
+
+![view objects](https://raw.github.com/jbreeden/spine/master/screenshots/gui_user_scripts.png)
+
 ## CLI
 
-Or use the console to...
+Use the console to...
 
 #### Get View from DOM Elements
 
