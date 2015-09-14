@@ -31,5 +31,8 @@ chrome.storage.local.get(function (model) {
 chrome.runtime.sendMessage('page:load');
 
 window.addEventListener('message', function (msg) {
-  if (msg.data.match(/^spine:/)) chrome.runtime.sendMessage(msg.data)
+  if (msg.data
+      && typeof(msg.data.match) == 'function'
+      && msg.data.match(/^spine:/)
+    ) chrome.runtime.sendMessage(msg.data);
 });
