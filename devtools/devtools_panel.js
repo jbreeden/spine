@@ -103,18 +103,18 @@ function setActionTracing() {
 function setAjaxTracing() {
   var ajaxTraces = app.model.get('ajaxTraces');
   if (ajaxTraces.length == 0) {
-    chrome.devtools.inspectedWindow.eval('spine.traceAjax(false)');
+    chrome.devtools.inspectedWindow.eval('spine.traceAjax(false);');
   } else {
-    chrome.devtools.inspectedWindow.eval('spine.traceAjax.apply(spine, ' + JSON.stringify(ajaxTraces) + ')');
+    chrome.devtools.inspectedWindow.eval('spine.traceAjax.apply(spine, ' + JSON.stringify(ajaxTraces) + ');');
   }
 }
 
 function setBackboneTracing() {
   var backboneTraces = app.model.get('backboneTraces');
   if (backboneTraces.length == 0) {
-    chrome.devtools.inspectedWindow.eval('spine.traceEvents(false)');
+    chrome.devtools.inspectedWindow.eval('spine.traceEvents(false);');
   } else {
-    chrome.devtools.inspectedWindow.eval('spine.traceEvents.apply(spine, ' + JSON.stringify(backboneTraces) + ')');
+    chrome.devtools.inspectedWindow.eval('spine.traceEvents.apply(spine, ' + JSON.stringify(backboneTraces) + ');');
   }
 }
 
@@ -125,7 +125,7 @@ function setFakeServer() {
     fakeServer.routes.each(function (route) {
       if (!route.get('applied')) return;
       chrome.devtools.inspectedWindow.eval(
-        'spine.onAjax("' + route.get('method') + '", new RegExp(' + JSON.stringify(route.get('url')) + ', "i"), ' + JSON.stringify([parseInt(route.get('status')), {}, route.get('content')]) + ')'
+        'spine.onAjax("' + route.get('method') + '", new RegExp(' + JSON.stringify(route.get('url')) + ', "i"), ' + JSON.stringify([parseInt(route.get('status')), route.get('headers'), route.get('content')]) + ');'
       );
     });
   });
@@ -133,7 +133,7 @@ function setFakeServer() {
 }
 
 function restoreFakeServer() {
-  chrome.devtools.inspectedWindow.eval('spine.restoreAjax()');
+  chrome.devtools.inspectedWindow.eval('spine.restoreAjax();');
 }
 
 function startRecordingAjax() {
@@ -148,6 +148,6 @@ function evalUserScript(script) {
   try {
     chrome.devtools.inspectedWindow.eval("try { " + script + " } catch (ex) { console.error('User Script Raised: ', ex); }");
   } catch (ex) {
-    chrome.devtools.inspectedWindow.eval("console.log('Error evaluating user script: '" + JSON.stringify(ex.toString())+ ")")
+    chrome.devtools.inspectedWindow.eval("console.log('Error evaluating user script: '" + JSON.stringify(ex.toString())+ ");")
   }
 }
