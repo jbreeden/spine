@@ -5,7 +5,7 @@ Spine.BackboneView = Backbone.View.extend({
     'change input': 'setTrace'
   },
   initialize: function () {
-    this.bbTypes = ['models', 'collections', 'views', 'routers'];
+    this.bbTypes = ['backbone', 'models', 'collections', 'views', 'routers'];
 
     this.model.on('change:enabled', function (model, enabled) {
       if (enabled) this.enable();
@@ -14,9 +14,9 @@ Spine.BackboneView = Backbone.View.extend({
   },
   setTrace: function () {
     var backboneTraces = [];
-    this.bbTypes.forEach(function (e) {
-      if (this.$('.' + e).prop('checked')) {
-        backboneTraces.push(e);
+    this.bbTypes.forEach(function (type) {
+      if (this.$('.' + type).prop('checked')) {
+        backboneTraces.push(type);
       }
     });
     this.model.set('backboneTraces', backboneTraces);

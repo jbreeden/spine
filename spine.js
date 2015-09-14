@@ -485,7 +485,11 @@
       } else {
         eventEmitters = [];
         types.forEach(function (type) {
-          eventEmitters = eventEmitters.concat(spine[type]);
+          if (type.toLowerCase() == 'backbone') {
+            eventEmitters = eventEmitters.concat(spine.Backbones);
+          } else {
+            eventEmitters = eventEmitters.concat(spine[type]);
+          }
           spine.Backbones.forEach(function (bb) {
             bb.on('debug:new:' + type.slice(0, type.length - 1), newItemBinder);
           });

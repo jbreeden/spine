@@ -19,7 +19,7 @@ Spine.Model = Backbone.Model.extend({
     Backbone.trigger('save');
   },
   initialize: function (options) {
-      this.fakeServer = new Spine.FakeServer(options.fakeServer);
+      this.fakeServer = new Spine.FakeServer(options.fakeServer || []);
 
       this.fakeServer.set('enabled', this.get('enabled'));
       this.on('change:enabled', function (model, enabled) {
@@ -27,7 +27,7 @@ Spine.Model = Backbone.Model.extend({
       }, this);
 
       this.userScripts = new Backbone.Collection();
-      this.userScripts.reset(options.userScripts);
+      this.userScripts.reset(options.userScripts || []);
 
       this.on('change', this.save, this);
       this.listenTo(this.userScripts, 'change', this.save);

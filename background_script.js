@@ -1,20 +1,20 @@
 // Setup first time model when extension is loaded
-var model = {};
-model.enabled = false;
-model.traceActions = false;
-model.ajaxTraces = [];
-model.backboneTraces = [];
-model.verbose = false;
-model.fakeServer = {
-  routes: [{
-    url: '.*',
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-    content: '{ "success": "true" }',
-  }]
-};
-model.userScripts = []
-chrome.storage.local.set(model);
+// var model = {};
+// model.enabled = false;
+// model.traceActions = false;
+// model.ajaxTraces = [];
+// model.backboneTraces = [];
+// model.verbose = false;
+// model.fakeServer = {
+//   routes: [{
+//     url: '.*',
+//     status: 200,
+//     headers: { "Content-Type": "application/json" },
+//     content: '{ "success": "true" }',
+//   }]
+// };
+// model.userScripts = []
+// chrome.storage.local.set(model);
 
 
 ports = [];
