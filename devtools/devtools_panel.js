@@ -12,15 +12,21 @@ chrome.storage.local.get(function (storage) {
   app.views.ajax = new Spine.AjaxView({model: app.model});
   app.views.backbone = new Spine.BackboneView({model: app.model});
   app.views.fakeServer = new Spine.FakeServerView({model: app.model.fakeServer});
+  app.views.userScripts = new Spine.UserScriptsView({model: app.model.userScripts});
 
   document.body.appendChild(app.views.layout.el);
   app.views.layout.addPanel('Spine', app.views.enable.render().$el);
-  var traceView = $('<div class="column align-start"></div>');
-  traceView.append(app.views.actions.render().$el);
-  traceView.append(app.views.ajax.render().$el);
-  traceView.append(app.views.backbone.render().$el);
-  app.views.layout.addPanel('Tracing', traceView);
+
+  // Hacky inline view definition
+  (function () {
+    var traceView = $('<div class="column align-start"></div>');
+    traceView.append(app.views.actions.render().$el);
+    traceView.append(app.views.ajax.render().$el);
+    traceView.append(app.views.backbone.render().$el);
+    app.views.layout.addPanel('Tracing', traceView);
+  }());
   app.views.layout.addPanel('Fake Server', app.views.fakeServer.render().$el);
+  app.views.layout.addPanel('User Scripts', app.views.userScripts.render().$el);
 
   Backbone.on('save', saveState);
 
@@ -33,6 +39,7 @@ chrome.storage.local.get(function (storage) {
   Backbone.on('restoreFakeServer', restoreFakeServer);
   Backbone.on('ajax:record:start', startRecordingAjax);
   Backbone.on('ajax:record:stop', stopRecordingAjax);
+  Backbone.on('userscript:eval', evalUserScript);
 });
 
 function saveState() {
@@ -135,4 +142,12 @@ function startRecordingAjax() {
 
 function stopRecordingAjax() {
   chrome.devtools.inspectedWindow.eval('spine.postAjaxResponses(false);');
+}
+
+function evalUserScript(script) {
+  try {
+    chrome.devtools.inspectedWindow.eval("try { " + script + " } catch (ex) { console.error('User Script Raised: ', ex); }");
+  } catch (ex) {
+    chrome.devtools.inspectedWindow.eval("console.log('Error evaluating user script: '" + JSON.stringify(ex.toString())+ ")")
+  }
 }

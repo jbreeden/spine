@@ -74,6 +74,7 @@ Spine.FakeServerView = Backbone.View.extend({
   },
   template: '\
     <div class="toolbar">\
+      <h1>Fake Server</h1>\
       <label><input class="record" type="checkbox"></input>Record</label>\
       <div class="explanation">\
         While `record` is enabled, a new route will be created for each AJAX response the application receives.<br/>\

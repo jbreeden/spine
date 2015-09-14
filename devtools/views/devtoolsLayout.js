@@ -34,7 +34,7 @@ Spine.DevtoolsLayout = Backbone.View.extend({
   },
   insertPanel: function (panel) {
     this.$('.sidebar').append(this.renderNavItemForPanel(panel.attributes));
-    this.$('.content').append(panel.get('$el'));
+    this.$('.row > .content').append(panel.get('$el'));
     panel.get('$el').css('display', 'none').addClass('devtools-layout-content-panel');
   },
   render: function () {

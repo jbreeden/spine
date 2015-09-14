@@ -13,6 +13,7 @@ model.fakeServer = {
     content: '{ "success": "true" }',
   }]
 };
+model.userScripts = []
 chrome.storage.local.set(model);
 
 

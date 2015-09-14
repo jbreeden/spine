@@ -19,6 +19,7 @@ Spine.FakeServer = Backbone.Model.extend({
     this.routes.add({});
   },
   removeRoute: function (route) {
+    // TODO: This should be in the view, if anywhere. Should remove this constraint.
     if (this.routes.length > 1) this.routes.remove(route);
   },
   toJSON: function () {

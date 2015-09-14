@@ -55,6 +55,22 @@
       align-items: flex-end;
     }
 
+    .align-center {
+      align-items: center;
+    }
+
+    .justify-start {
+      justify-content: flex-start;
+    }
+
+    .justify-end {
+      justify-content: flex-end;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
     .wrap {
       flex-wrap: wrap;
     }
@@ -90,7 +106,7 @@
     }
 
     /*
-     * Page Specific
+     * App Specific
      * -------------
      */
 
@@ -103,6 +119,10 @@
     textarea, input {
       font-family: monospace;
       font-size: medium;
+    }
+
+    textarea {
+      height: 100px;
     }
 
     .toolbar {
@@ -187,10 +207,6 @@
       margin: 0 5px 5px 0;
     }
 
-    .spine-fake-server-route-view textarea {
-      min-height: 100px;
-    }
-
     .spine-fake-server-route-view.applied-route {
       box-shadow: 2px 0px 4px  lightgreen,
                   -2px 0px 4px  lightgreen,
@@ -209,6 +225,27 @@
       color: red;
     }
 
+    /* User Scripts */
+
+    .spine-user-script-view {
+      margin: 10px;
+      border-radius: 4px;
+    }
+
+    .spine-user-script-view > * {
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+
+    .spine-user-script-view > .header,
+    .spine-user-script-view > .footer {
+      margin: 5px;
+    }
+
+    .spine-user-script-view textarea {
+      resize: vertical;
+    }
+
   </style>
 </head>
 <body>
@@ -225,6 +262,8 @@
   <script src="views/backbone.js" type="text/javascript"></script>
   <script src="views/fakeServerRoute.js" type="text/javascript"></script>
   <script src="views/fakeServer.js" type="text/javascript"></script>
+  <script src="views/userScript.js" type="text/javascript"></script>
+  <script src="views/userScripts.js" type="text/javascript"></script>
   <script src="devtools_panel.js" type="text/javascript"></script>
 </body>
 </html>

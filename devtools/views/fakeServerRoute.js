@@ -112,8 +112,8 @@ Spine.FakeServerRouteView = Backbone.View.extend({
       </div>\
     </div>\
     Headers <span class="error headers-error"></span>\
-    <textarea class="headers"></textarea>\
+    <textarea class="headers" spellcheck="false"></textarea>\
     Content\
-    <textarea class="content"></textarea>\
+    <textarea class="content" spellcheck="false"></textarea>\
   '
 });
