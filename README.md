@@ -26,7 +26,7 @@ Using Google Chrome:
 
 ## GUI
 
-Use the GUI to...
+Here are a few screenshots showing what you can do through the GUI
 
 #### Enable or disable the extension
 
@@ -46,7 +46,8 @@ Use the GUI to...
 
 ## CLI
 
-Use the console to...
+Spine exposes most features through the GUI. However, some features are only directly accessible as properties 
+of the `spine` object. You can access the `spine` API in the console, or in user scripts.
 
 #### Get View from DOM Elements
 
