@@ -26,7 +26,9 @@ Using Google Chrome:
 
 ## GUI
 
-Here are a few screenshots showing what you can do through the GUI
+Here are a few screenshots showing what you can do through the GUI.
+
+_These are a little outdated. In fact, the last one is more recent then the first few (notice the new nav item that appears). I'll add new screenshots after a few more features go in._
 
 #### Enable or disable the extension
 
