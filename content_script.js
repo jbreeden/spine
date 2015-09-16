@@ -8,7 +8,7 @@ chrome.storage.local.get(function (model) {
 
     var initScript = document.createElement('script');
     initScript.textContent =
-      (model.verbose ? 'console.log("Spline Model: ", ' + JSON.stringify(model) + '); ' : '') +
+      (model.verbose ? 'console.log("Spine Model: ", ' + JSON.stringify(model) + '); ' : '') +
       'window.spine = window.spine || {};' +
       'spine.verbose = ' + (model.verbose ? 'true; ' : 'false; ') +
       'spine.init = function () {' +
