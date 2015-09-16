@@ -14,10 +14,13 @@ chrome.storage.local.get(function (model) {
       'spine.init = function () {' +
       '  spine.traceActions(' + (model.traceActions ? "" : "false") + ');' +
       (model.ajaxTraces.length > 0
-        ? '  spine.traceAjax.apply(spine, ' + JSON.stringify(model.ajaxTraces) + ')'
+        ? '  spine.traceAjax.apply(spine, ' + JSON.stringify(model.ajaxTraces) + ');'
         : '') +
       (model.backboneTraces.length > 0
-        ? '  spine.traceEvents.apply(spine, ' + JSON.stringify(model.backboneTraces) + ')'
+        ? '  spine.traceEvents.apply(spine, ' + JSON.stringify(model.backboneTraces) + ');'
+        : '') +
+      (model.fakeServer.recording
+        ? '  spine.postAjaxResponses();'
         : '') +
       '};';
 
