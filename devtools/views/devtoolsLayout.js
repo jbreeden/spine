@@ -6,6 +6,14 @@ Spine.DevtoolsLayout = Backbone.View.extend({
       this.gotoPanel(e.target.getAttribute('data-panel'));
     }
   },
+  template: '\
+    <div class="row">\
+      <div class="sidebar inline-column no-flex">\
+      </div>\
+      <div class="content inline-column flex">\
+      </div>\
+    </div>\
+  ',
   initialize: function () {
     this.panels = {};
     this.initializeDOM();
@@ -43,13 +51,5 @@ Spine.DevtoolsLayout = Backbone.View.extend({
   renderNavItemForPanel: function (context) {
     this.navItemTemplate = this.navItemTemplate || _.template('<div class="nav" data-panel="<%= title %>"><%= title %></div>');
     return this.navItemTemplate(context);
-  },
-  template: '\
-    <div class="row">\
-      <div class="sidebar inline-column no-flex">\
-      </div>\
-      <div class="content inline-column flex">\
-      </div>\
-    </div>\
-  '
+  }
 });

@@ -22,6 +22,13 @@ chrome.storage.local.get(function (model) {
       (model.fakeServer.recording
         ? '  spine.postAjaxResponses();'
         : '') +
+      (model.fakeServer.routes.map(function (r) {
+          if (r.applied) {
+            return 'spine.onAjax("' + r.method + '", new RegExp(' + JSON.stringify(r.url) + ', "i"), ' + JSON.stringify([parseInt(r.status), r.headers, r.content]) + ');'
+          } else {
+            return '';
+          }
+        } ).join(' ')) +
       '};';
 
     var scriptParent = (document.head||document.documentElement);

@@ -28,18 +28,32 @@ chrome.storage.local.get(function (storage) {
   app.views.layout.addPanel('Fake Server', app.views.fakeServer.render().$el);
   app.views.layout.addPanel('User Scripts', app.views.userScripts.render().$el);
 
-  Backbone.on('save', saveState);
+  // TODO: More granular saves
+  app.model.on('change', saveState);
+  app.model.fakeServer.on('change', saveState);
+  app.model.fakeServer.routes.on('change', saveState);
+  app.model.fakeServer.routes.on('update', saveState);
+  app.model.userScripts.on('change', saveState);
+  app.model.userScripts.on('update', saveState);
 
   app.model.on('change:enabled', setEnabled);
   app.model.on('change:verbose', setVerbose);
   app.model.on('change:traceActions', setActionTracing);
   app.model.on('change:ajaxTraces', setAjaxTracing);
   app.model.on('change:backboneTraces', setBackboneTracing);
-  Backbone.on('setFakeServer', setFakeServer);
-  Backbone.on('restoreFakeServer', restoreFakeServer);
-  Backbone.on('ajax:record:start', startRecordingAjax);
-  Backbone.on('ajax:record:stop', stopRecordingAjax);
-  Backbone.on('userscript:eval', evalUserScript);
+  app.model.fakeServer.routes.on('add', function (model) { if (model.get('applied')) setFakeServer(); });
+  app.model.fakeServer.routes.on('remove', function (model) { if (model.get('applied')) setFakeServer(); });
+  app.model.fakeServer.routes.on('change:applied', setFakeServer);
+  app.model.fakeServer.on('change:recording', function (model, recording) {
+    if (recording) startRecordingAjax();
+    else stopRecordingAjax();
+  });
+
+  app.model.userScripts.each(listenForEval);
+  app.model.userScripts.on('add', listenForEval);
+  function listenForEval(model) {
+    model.on('eval', function () { evalUserScript(model.get('text')); } );
+  }
 });
 
 function saveState() {
@@ -75,12 +89,17 @@ function applySettings() {
   setAjaxTracing();
   setBackboneTracing();
   setFakeServer();
+  if (app.model.fakeServer.get('recording')) {
+    startRecordingAjax();
+  }
 }
 
 function disable() {
   chrome.devtools.inspectedWindow.eval('spine.traceActions(false)');
   chrome.devtools.inspectedWindow.eval('spine.traceAjax(false)');
   chrome.devtools.inspectedWindow.eval('spine.traceEvents(false)');
+  restoreFakeServer();
+  stopRecordingAjax();
 }
 
 function setVerbose() {
