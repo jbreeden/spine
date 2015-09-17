@@ -6,6 +6,15 @@ Spine.UserScriptView = Backbone.View.extend({
     'click .delete': 'onDelete',
     'click .run': 'onRun'
   },
+  template: '\
+  <div class="row header">\
+    <label>Name <input class="title"></input></label>\
+    <div class="flex"></div>\
+    <button class="run">Run</button>\
+  </div>\
+  <textarea class="text" spellcheck="false"></textarea>\
+  <div class="footer row justify-end"><button class="delete">Delete</button></div>\
+  ',
   initialize: function () {
     this.listenTo(this.model.collection, 'remove', function (model, collection) {
       if (model == this.model) this.remove();
@@ -33,7 +42,7 @@ Spine.UserScriptView = Backbone.View.extend({
     this.model.collection.remove(this.model);
   },
   onRun: function () {
-    Backbone.trigger('userscript:eval', this.model.get('text'));
+    this.model.trigger('eval');
   },
   render: function () {
     if (!this.rendered) {
@@ -44,14 +53,5 @@ Spine.UserScriptView = Backbone.View.extend({
     this.$('.title').val(this.model.get('title'));
     this.$('.text').val(this.model.get('text'));
     return this;
-  },
-  template: '\
-  <div class="row header">\
-    <label>Name <input class="title"></input></label>\
-    <div class="flex"></div>\
-    <button class="run">Run</button>\
-  </div>\
-  <textarea class="text" spellcheck="false"></textarea>\
-  <div class="footer row justify-end"><button class="delete">Delete</button></div>\
-  '
+  }
 });

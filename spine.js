@@ -859,5 +859,6 @@
     }
   });
 
+  // spine.init my be defined by the content_script.js file for the GUI
   if (spine.init) onBackboneFound.callbacks.push(function () { spine.init(); });
 }());
