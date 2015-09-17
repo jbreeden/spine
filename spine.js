@@ -252,7 +252,8 @@
         if (value !== null) response.headers[key] = value;
       });
 
-      if (jqxhr.getResponseHeader('Content-Type').match(/json/i)) {
+      var contentType = jqxhr.getResponseHeader('Content-Type');
+      if (contentType && contentType.match(/json/i)) {
           response.content = JSON.stringify(JSON.parse(jqxhr.responseText), null, '  ');
       } else {
         response.content = jqxhr.responseText;
