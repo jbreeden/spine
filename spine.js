@@ -38,14 +38,16 @@
   function BackboneEvent() {};
   BackboneEvent.prototype.log = function (stack) {
     var isView = false;
-    if (this.handlerContext && this.handlerContext.el) {
+    if (this.handlerContext && this.handlerContext.el && this.handlerContext.$el) {
       isView = true;
     }
-    if (isView) {
-      console.groupCollapsed(this.eventName + ' (cid:' + this.handlerContext.cid + ', data-view: ' + (this.handlerContext.el ? this.handlerContext.el.getAttribute('data-view') : '') + ')');
-    } else {
-      console.groupCollapsed(this.eventName);
-    }
+
+    var groupLabel = this.eventName + ' %c(' +
+      (this.handlerContext.id ? 'id: ' + this.handlerContext.id : 'cid: ' + this.handlerContext.cid) +
+      (isView && this.handlerContext.el.hasAttribute('data-view') ? ', data-view: ' + this.handlerContext.el.getAttribute('data-view') : '') +
+      ')';
+
+    console.groupCollapsed(groupLabel, 'color: grey;');
 
     console.log(this);
     if (isView) {
@@ -66,7 +68,12 @@
     this.settings = this.handlerArguments[2];
 
     if (this.jqxhr && this.settings) {
-      console.groupCollapsed("%s%s%s %s", this.eventName, Array(15 - this.eventName.length + 1).join(' '), this.settings.type, this.settings.url);
+      console.groupCollapsed("%s%s%c%s %s",
+        this.eventName,
+        Array(15 - this.eventName.length + 1).join(' '),
+        'color: grey;',
+        this.settings.type,
+        this.settings.url);
       console.log("jQXHR: ", this.jqxhr);
       console.log("Ajax Settings: ", this.settings);
     } else {

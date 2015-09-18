@@ -24,11 +24,19 @@ chrome.storage.local.get(function (model) {
         : '') +
       (model.fakeServer.routes.map(function (r) {
           if (r.applied) {
-            return 'spine.onAjax("' + r.method + '", new RegExp(' + JSON.stringify(r.url) + ', "i"), ' + JSON.stringify([parseInt(r.status), r.headers, r.content]) + ');'
+            return ['HEAD', 'GET', 'POST', 'PUT', 'DELETE'].map(function (method) {
+              var pattern;
+              try { pattern = new RegExp(r.method); } catch (ex) { /* Not a valid regex. Oh well. */ };
+              if (pattern && method.match(pattern)) {
+                return 'spine.onAjax("' + method + '", new RegExp(' + JSON.stringify(r.url) + ', "i"), ' + JSON.stringify([parseInt(r.status), r.headers, r.content]) + ');';
+              } else {
+                return '';
+              }
+            }).join(' ');
           } else {
             return '';
           }
-        } ).join(' ')) +
+        }).join(' ')) +
       '};';
 
     var scriptParent = (document.head||document.documentElement);

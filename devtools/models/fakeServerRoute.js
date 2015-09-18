@@ -3,7 +3,7 @@ Spine.FakeServerRoute = Backbone.Model.extend({
   defaults: {
     applied: false,
     url: '.*',
-    method: 'GET',
+    method: 'GET|POST|PUT|DELETE',
     status: 200,
     headers: { "Content-Type": "application/json" },
     content: '{ "success": true }',

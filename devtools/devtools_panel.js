@@ -143,9 +143,19 @@ function setFakeServer() {
     restoreFakeServer();
     fakeServer.routes.each(function (route) {
       if (!route.get('applied')) return;
-      chrome.devtools.inspectedWindow.eval(
-        'spine.onAjax("' + route.get('method') + '", new RegExp(' + JSON.stringify(route.get('url')) + ', "i"), ' + JSON.stringify([parseInt(route.get('status')), route.get('headers'), route.get('content')]) + ');'
-      );
+
+      ['HEAD', 'GET', 'POST', 'PUT', 'DELETE'].forEach(function (method) {
+        var pattern;
+        try { pattern = new RegExp(route.get('method')); } catch (ex) { /* Not a valid regex. Oh well. */ };
+        if (pattern && method.match(pattern)) {
+          chrome.devtools.inspectedWindow.eval(
+            'spine.onAjax("' + method + '", \
+              new RegExp(' + JSON.stringify(route.get('url')) + ', "i"),' +
+              JSON.stringify([parseInt(route.get('status')), route.get('headers'), route.get('content')]) +
+            ');'
+          );
+        }
+      });
     });
   });
   setFakeServer.apply(this, arguments);
