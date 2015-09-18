@@ -86,8 +86,8 @@
       console.log("jQXHR: ", this.jqxhr);
       console.log("Ajax Settings: ", this.settings);
     } else {
-      console.log(this);
       console.groupCollapsed(this.eventName);
+      console.log(this);
     }
 
     if (stack) console.log(stack);
