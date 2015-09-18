@@ -19,12 +19,23 @@ chrome.storage.local.get(function (storage) {
 
   // Hacky inline view definition
   (function () {
-    var traceView = $('<div class="column align-start"></div>');
-    traceView.append(app.views.actions.render().$el);
-    traceView.append(app.views.ajax.render().$el);
-    traceView.append(app.views.backbone.render().$el);
-    app.views.layout.addPanel('Tracing', traceView);
+    var $traceView = $('<div class="column align-stretch"></div>');
+    $traceView.append(app.views.actions.render().$el);
+    $traceView.append(app.views.ajax.render().$el);
+    $traceView.append(app.views.backbone.render().$el);
+    $(document).on('resize', function () {
+      if ($(document).height() < 500) {
+        $traceView.removeClass('column');
+        $traceView.addClass('row');
+      } else {
+        $traceView.removeClass('row');
+        $traceView.addClass('column');
+      }
+    });
+
+    app.views.layout.addPanel('Tracing', $traceView);
   }());
+
   app.views.layout.addPanel('Fake Server', app.views.fakeServer.render().$el);
   app.views.layout.addPanel('User Scripts', app.views.userScripts.render().$el);
 
@@ -41,6 +52,7 @@ chrome.storage.local.get(function (storage) {
   app.model.on('change:traceActions', setActionTracing);
   app.model.on('change:ajaxTraces', setAjaxTracing);
   app.model.on('change:backboneTraces', setBackboneTracing);
+  app.model.on('change:backboneEventFilter', setBackboneTracing);
   app.model.fakeServer.routes.on('add', function (model) { if (model.get('applied')) setFakeServer(); });
   app.model.fakeServer.routes.on('remove', function (model) { if (model.get('applied')) setFakeServer(); });
   app.model.fakeServer.routes.on('change:applied', setFakeServer);
@@ -130,10 +142,11 @@ function setAjaxTracing() {
 
 function setBackboneTracing() {
   var backboneTraces = app.model.get('backboneTraces');
+  var filter = app.model.get('backboneEventFilter');
   if (backboneTraces.length == 0) {
     chrome.devtools.inspectedWindow.eval('spine.traceEvents(false);');
   } else {
-    chrome.devtools.inspectedWindow.eval('spine.traceEvents.apply(spine, ' + JSON.stringify(backboneTraces) + ');');
+    chrome.devtools.inspectedWindow.eval('spine.traceEvents.apply(spine, ' + JSON.stringify(backboneTraces.concat({ filter: filter })) + ');');
   }
 }
 

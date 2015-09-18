@@ -23,7 +23,7 @@ Spine.DevtoolsLayout = Backbone.View.extend({
   addPanel: function (title, $el) {
     this.panels.add({
       title: title,
-      $el: $el
+      $el: $('<div></div>').append($el)
     });
     if (this.panels.length == 1) {
       this.gotoPanel(title);

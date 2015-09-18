@@ -200,6 +200,32 @@
       height: 100%;
     }
 
+    /* Form Styles */
+
+    .input-group {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .input-group-left,
+    .input-group-right {
+      margin: 5px
+    }
+
+    .input-group-left {
+      flex-grow: 0;
+      min-width: 60px;
+      border-right-style: solid;
+      border-right-width: 1px;
+      border-right-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .input-group-right {
+      position: relative;
+      flex-grow: 1;
+    }
+
     /* Fake Server View */
 
     .spine-fake-server-route-view {

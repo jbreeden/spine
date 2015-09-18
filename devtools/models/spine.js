@@ -5,7 +5,8 @@ Spine.Model = Backbone.Model.extend({
       enabled: false,
       traceActions: false,
       ajaxTraces: [],
-      backboneTraces: []
+      backboneTraces: [],
+      backboneEventFilter: ""
     };
   },
   toJSON: function () {

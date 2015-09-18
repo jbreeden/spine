@@ -1,18 +1,22 @@
 Spine = window.Spine || {};
 Spine.ActionsView = Backbone.View.extend({
-  className: 'spine-actions-view',
+  className: 'spine-actions-view toolbar',
   events: {
     'change .enabled': 'onSetEnabled'
   },
   template: '\
-  <div class="toolbar">\
     <h1>Actions</h1>\
-    <label><input class="enabled" type="checkbox"></input>Enabled</label>\
-    <div class="explanation">\
-      Action tracing will group all AJAX & Backbone events that occur consecutively, \
-      within 200ms of eachother, into groups and ouput them to the console with context-specific information about each event.\
+    <div class="input-group">\
+      <div class="input-group-left">\
+        <span>Enabled</span>\
+      </div>\
+      <div class="input-group-right">\
+        <label><input class="enabled" type="checkbox"></input>Shut up and take my money!</label>\
+        <div class="explanation">\
+          Group consecutive events as actions, store them, and log the details to the console.\
+        </div>\
+      </div>\
     </div>\
-  </div>\
   ',
   initialize: function () {
     this.model.on('change:enabled', function (model, enabled) {

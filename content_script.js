@@ -12,31 +12,33 @@ chrome.storage.local.get(function (model) {
       'window.spine = window.spine || {};' +
       'spine.verbose = ' + (model.verbose ? 'true; ' : 'false; ') +
       'spine.init = function () {' +
-      '  spine.traceActions(' + (model.traceActions ? "" : "false") + ');' +
-      (model.ajaxTraces.length > 0
-        ? '  spine.traceAjax.apply(spine, ' + JSON.stringify(model.ajaxTraces) + ');'
-        : '') +
-      (model.backboneTraces.length > 0
-        ? '  spine.traceEvents.apply(spine, ' + JSON.stringify(model.backboneTraces) + ');'
-        : '') +
-      (model.fakeServer.recording
-        ? '  spine.postAjaxResponses();'
-        : '') +
-      (model.fakeServer.routes.map(function (r) {
-          if (r.applied) {
-            return ['HEAD', 'GET', 'POST', 'PUT', 'DELETE'].map(function (method) {
-              var pattern;
-              try { pattern = new RegExp(r.method); } catch (ex) { /* Not a valid regex. Oh well. */ };
-              if (pattern && method.match(pattern)) {
-                return 'spine.onAjax("' + method + '", new RegExp(' + JSON.stringify(r.url) + ', "i"), ' + JSON.stringify([parseInt(r.status), r.headers, r.content]) + ');';
-              } else {
-                return '';
-              }
-            }).join(' ');
-          } else {
-            return '';
-          }
-        }).join(' ')) +
+        'try { ' +
+        '  spine.traceActions(' + (model.traceActions ? "" : "false") + ');' +
+        (model.ajaxTraces.length > 0
+          ? '  spine.traceAjax.apply(spine, ' + JSON.stringify(model.ajaxTraces) + ');'
+          : '') +
+        (model.backboneTraces.length > 0
+          ? '  spine.traceEvents.apply(spine, ' + JSON.stringify(model.backboneTraces.concat({ filter: model.backboneEventFilter })) + ');'
+          : '') +
+        (model.fakeServer.recording
+          ? '  spine.postAjaxResponses();'
+          : '') +
+        (model.fakeServer.routes.map(function (r) {
+            if (r.applied) {
+              return ['HEAD', 'GET', 'POST', 'PUT', 'DELETE'].map(function (method) {
+                var pattern;
+                try { pattern = new RegExp(r.method); } catch (ex) { /* Not a valid regex. Oh well. */ };
+                if (pattern && method.match(pattern)) {
+                  return 'spine.onAjax("' + method + '", new RegExp(' + JSON.stringify(r.url) + ', "i"), ' + JSON.stringify([parseInt(r.status), r.headers, r.content]) + ');';
+                } else {
+                  return '';
+                }
+              }).join(' ');
+            } else {
+              return '';
+            }
+          }).join(' ')) +
+        '} catch (ex) { console.log(ex); }' +
       '};';
 
     var scriptParent = (document.head||document.documentElement);

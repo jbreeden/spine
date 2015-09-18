@@ -8,13 +8,22 @@
 
   var privateEvents = [
     'debug:discover',
-    'debug:report',
+    'debug:report'
+  ];
+
+  var verboseEvents = [
     'debug:new',
     'debug:render'
   ];
 
   function isPrivateEvent(eventName) {
-    if (spine.verbose) return false;
+    if (spine.verbose) {
+      for (var i = 0; i < verboseEvents.length; i++) {
+        if (eventName.indexOf(verboseEvents[i]) == 0) {
+          return false;
+        }
+      }
+    }
     for (var i = 0; i < privateEvents.length; i++) {
       if (eventName.indexOf(privateEvents[i]) == 0) {
         return true;
@@ -448,8 +457,14 @@
 
   (function () {
 
+    // Module-Global options.
+    // Set each time spine.traceEvents is called.
+    var options = {};
+
     var eventTracer = function (event/* , trigger args... */) {
       if (isPrivateEvent(event)) return;
+      if (options.filter && !event.match(options.filter)) return;
+
       var data = new BackboneEvent();
       data.eventName = event;
       data.handlerContext = this;
@@ -463,10 +478,17 @@
     };
 
     // arguments => 'models', 'collections', 'views', 'routers' /* Or any subset as positional arguments*/
+    // Pass an object as the last param to specify options.
     spine.traceEvents = function () {
       var eventEmitters,
           types = Array.prototype.slice.call(arguments),
           allDiscoverableEmitters = spine.discovery.allDiscoverableObjects();
+
+      if (typeof(types[types.length - 1]) == 'object') {
+        options = types.pop();
+      } else {
+        options = {};
+      }
 
       // Each new call resets the value, so remove existing listeners
       allDiscoverableEmitters.forEach(function (emitter) {

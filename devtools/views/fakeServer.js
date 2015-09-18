@@ -1,6 +1,6 @@
 Spine = window.Spine || {};
 Spine.FakeServerView = Backbone.View.extend({
-  className: 'spine-fake-server-view inline-column align-start',
+  className: 'spine-fake-server-view column align-stretch',
   events: {
     'change .record': 'setAjaxRecording',
     'click .new': 'onClickNew',
