@@ -32,12 +32,31 @@ Spine.FakeServerRouteView = Backbone.View.extend({
       <button class="applied">Start</button>\
     </div>\
   ',
-  initialize: function () {
+  initialize: function (options) {
     this.model.on('change', this.render, this);
     this.$el.html(this.template);
     this.$('*').on('change', this.onInputChange.bind(this));
     this.errors = new Backbone.Model();
     this.listenTo(this.errors, 'change', this.setValidationErrors.bind(this));
+
+    this.controller = options.controller;
+    this.listenTo(this.controller, 'fakeserver:routes:filter', function (filter) {
+      var pattern;
+      try { pattern = new RegExp(filter, 'i'); } catch (ex) { }
+
+      if (pattern
+          && (this.model.get('url').match(pattern)
+            || this.model.get('content').match(pattern)
+            || JSON.stringify(this.model.get('headers')).match(pattern)
+            || this.model.get('method').match(pattern)
+            || this.model.get('status').toString().match(pattern)
+          )
+        ) {
+        this.$el.css('display', '');
+      } else {
+        this.$el.css('display', 'none');
+      }
+    });
 
     this.listenTo(this.model, 'remove', function (model, collection) {
       if (collection == this.model.collection) {

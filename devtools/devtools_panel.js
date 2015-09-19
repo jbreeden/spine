@@ -2,6 +2,10 @@
 // ---------------
 
 var app = {};
+window.Spine = window.Spine || {};
+Spine.constants = Spine.constants || {
+  searchDelayMs: 300
+};
 
 chrome.storage.local.get(function (storage) {
   app.model = new Spine.Model(storage);

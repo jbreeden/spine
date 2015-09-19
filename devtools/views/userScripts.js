@@ -22,6 +22,10 @@ Spine.UserScriptsView = Backbone.View.extend({
     this.initializeDOM();
     this.model.each(this.insertUserScript, this);
     this.model.on('add', this.insertUserScript, this);
+
+    this.onSearch = _.debounce(function () {
+      this.model.trigger('view:filter', this.$('.search').val());
+    }.bind(this), Spine.constants.searchDelayMs);
   },
   initializeDOM: function () {
     this.$el.html(this.template);
@@ -32,9 +36,6 @@ Spine.UserScriptsView = Backbone.View.extend({
       text: ''
     });
   },
-  onSearch: _.debounce(function () {
-    this.model.trigger('view:filter', this.$('.search').val());
-  }, 350),
   insertUserScript: function (model) {
     this.$el.append(
       (new Spine.UserScriptView({model: model})).render().$el

@@ -12,14 +12,21 @@ Spine.FakeServerView = Backbone.View.extend({
     <div class="toolbar">\
       <h1>Fake Server</h1>\
       <label><input class="record" type="checkbox"></input>Record</label>\
+      <!-- TODO\
       <div class="explanation">\
         While `record` is enabled, a new route will be created for each AJAX response the application receives.<br/>\
         Note: After recording, you may need to escape the captured URL pattern to make sure it\'s a valid RegExp.\
       </div>\
-      <button class="new">New</button>\
-      <button class="clear">Clear</button>\
-      <button class="startRoutes">Start All</button>\
-      <button class="stopRoutes">Stop All</button>\
+      -->\
+      <div class="controls row align-center">\
+        <button class="new">New</button>\
+        <button class="clear">Clear</button>\
+        <button class="startRoutes">Start All</button>\
+        <button class="stopRoutes">Stop All</button>\
+        <div class="flex"></div>\
+        <span>Search</span>\
+        <input class="search" type="text"></input>\
+      </div>\
     </div>\
     <div class="routes inline-row wrap align-start flex"></div>\
   ',
@@ -42,6 +49,10 @@ Spine.FakeServerView = Backbone.View.extend({
     this.model.routes.on('add', this.insertViewForRoute, this);
 
     this.listenTo(Backbone, 'ajax:response', this.addAjaxRecording.bind(this));
+
+    this.$el.on('keyup', '.search', _.debounce(function () {
+      this.trigger('fakeserver:routes:filter', this.$('.search').val());
+    }.bind(this), Spine.constants.searchDelayMs));
   },
   startRoutes: function () {
     this.model.routes.each(function (r) { r.set('applied', true); });
@@ -68,7 +79,7 @@ Spine.FakeServerView = Backbone.View.extend({
     this.$el.removeClass('disabled');
   },
   insertViewForRoute: function (route) {
-    var routeView = new Spine.FakeServerRouteView({ model: route });
+    var routeView = new Spine.FakeServerRouteView({ model: route, controller: this });
     this.$('.routes').append(routeView.render().el);
   },
   clearRoutes: function () {
